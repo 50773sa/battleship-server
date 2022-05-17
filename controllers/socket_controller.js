@@ -2,7 +2,7 @@
  * Socket Controller
  */
 
-const debug = require('debug')('ships:socket_controller');
+const debug = require('debug')('battleship:socket_controller');
 let io = null; // socket.io server instance
 
 /**
