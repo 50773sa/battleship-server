@@ -23,6 +23,14 @@ const handleDisconnect = function() {
 	io.emit('game:start')
 }
 
+/**
+ * Random function
+ * 
+ */
+const randomPosition = () {
+	const blockId = Math.floor(Math.random()*100);
+	return blockId;
+}
 
 /**
  * Export controller and attach handlers to events
