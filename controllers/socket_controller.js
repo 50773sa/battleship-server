@@ -2,7 +2,7 @@
  * Socket Controller
  */
 
-const debug = require('debug')('clock:socket_controller');
+const debug = require('debug')('ships:socket_controller');
 let io = null; // socket.io server instance
 
 /**
@@ -14,37 +14,15 @@ const handleDisconnect = function() {
 }
 
 /**
- * Handle clock start
+ * Handle start game
  *
  */
  const handleClockStart = function() {
-	debug(`Client ${this.id} wants to start the clock`);
+	debug(`Client ${this.id} wants to join the game`);
 
-	// säg till alla anslutna att klockan ska starta. I Timer lyssnar vi sedan efter detta med socket.on
-	io.emit('clock:start')
+	io.emit('game:start')
 }
 
-/**
- * Handle clock Stop
- *
- */
- const handleClockStop = function() {
-	debug(`Client ${this.id} wants to stop the clock`);
-
-	// säg till alla anslutna att klockan ska stanna. I Timer lyssnar vi sedan efter detta med socket.on
-	io.emit('clock:stop')
-}
-
-/**
- * Handle clock Reset
- *
- */
- const handleClockReset = function() {
-	debug(`Client ${this.id} wants to reset the clock`);
-
-	// säg till alla anslutna att klockan ska resetas. I Timer lyssnar vi sedan efter detta med socket.on
-	io.emit('clock:reset')
-}
 
 /**
  * Export controller and attach handlers to events
@@ -59,12 +37,6 @@ module.exports = function(socket, _io) {
 	// handle user disconnect
 	socket.on('disconnect', handleDisconnect);
 
-	// listen for clock:start events
-	socket.on('clock:start', handleClockStart)
-
-	// listen for clock:stop events
-	socket.on('clock:stop', handleClockStop)
-
-	// listen for clock:reset events
-	socket.on('clock:reset', handleClockReset)
+	// listen for game:start events
+	socket.on('game:start', handleClockStart)
 }
