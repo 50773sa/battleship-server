@@ -27,8 +27,8 @@ const handleDisconnect = function() {
  * Random function
  * 
  */
-const randomPosition = () {
-	const blockId = Math.floor(Math.random()*100);
+const randomPosition = function () {
+	const blockId = Math.floor(Math.random() * 100);
 	return blockId;
 }
 
