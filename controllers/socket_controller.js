@@ -5,6 +5,23 @@
 const debug = require('debug')('battleship:socket_controller');
 let io = null; // socket.io server instance
 
+// list of players
+const players = [
+	{
+		id: 'player',
+		name: 'Player'
+	},
+	{
+		id: 'opponent',
+		name: 'Opponent'
+	},
+]
+
+// Get player by ID
+const getPlayerById = id => {
+	return players.find(player => player.id === id)
+}
+
 /**
  * Handle a user disconnecting
  *
@@ -17,10 +34,15 @@ const handleDisconnect = function() {
  * Handle join game
  *
  */
- const handleJoinGame = function() {
-	debug(`Client ${this.id} wants to join the game`);
+ const handleJoinGame = async function(player_id) {
+	debug(`Player ${player_id} with socket id ${this.id} wants to join the game`);
+
+	// add socket to list of players
+	const game = getPlayerById(player_id)
 
 	io.emit('join:game')
+
+	io.emit('player:list', player_id)
 }
 
 /**
