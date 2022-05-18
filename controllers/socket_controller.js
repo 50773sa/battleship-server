@@ -8,11 +8,11 @@ let io = null; // socket.io server instance
 // list of players
 const players = [
 	{
-		id: 'player',
+		id: '1',
 		name: 'Player'
 	},
 	{
-		id: 'opponent',
+		id: '2',
 		name: 'Opponent'
 	},
 ]
@@ -37,10 +37,10 @@ const handleDisconnect = function() {
  const handleJoinGame = async function(player_id) {
 	debug(`Player ${player_id} with socket id ${this.id} wants to join the game`);
 
-	// add socket to list of players
-	const game = getPlayerById(player_id)
+ 	// add socket to list of players
+	const game = getPlayerById(player_id) 
 
-	io.emit('join:game')
+	io.emit('join:game', game)
 
 	io.emit('player:list', player_id)
 }
