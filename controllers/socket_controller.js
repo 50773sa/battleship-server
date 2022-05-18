@@ -14,13 +14,13 @@ const handleDisconnect = function() {
 }
 
 /**
- * Handle start game
+ * Handle join game
  *
  */
- const handleClockStart = function() {
+ const handleJoinGame = function() {
 	debug(`Client ${this.id} wants to join the game`);
 
-	io.emit('game:start')
+	io.emit('join:game')
 }
 
 /**
@@ -45,6 +45,6 @@ module.exports = function(socket, _io) {
 	// handle user disconnect
 	socket.on('disconnect', handleDisconnect);
 
-	// listen for game:start events
-	socket.on('game:start', handleClockStart)
+	// listen for join:game events
+	socket.on('join:game', handleJoinGame)
 }
