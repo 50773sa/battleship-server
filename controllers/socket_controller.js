@@ -45,14 +45,6 @@ const handleDisconnect = function() {
 	io.emit('player:list', player_id)
 }
 
-/**
- * Random function
- * 
- */
-const randomPosition = function () {
-	const blockId = Math.floor(Math.random() * 100);
-	return blockId;
-}
 
 /**
  * Export controller and attach handlers to events
