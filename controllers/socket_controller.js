@@ -113,6 +113,18 @@ const randomPosition = function () {
 	return blockId;
 }
 
+
+/**
+ * Handle click event on cell
+ *
+ */
+ const handleClickOnCell = function (click) {
+    debug(`Client ${this.id} clicked on cell with id ${click.id}`)
+
+    this.emit('cell:clicked')
+}
+
+
 /**
  * Export controller and attach handlers to events
  *
@@ -132,4 +144,7 @@ module.exports = function(socket, _io) {
 	socket.on('player:joined', handleJoinGame)
 
 	socket.on('get-game-list', handleGetGameList)
+
+	// handle click on cell
+	socket.on('cell:clicked', handleClickOnCell)
 }
