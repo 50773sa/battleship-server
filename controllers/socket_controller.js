@@ -3,106 +3,53 @@
  */
 
 const debug = require('debug')('battleship:socket_controller');
-let io = null; // socket.io server instance
+let io = null; 
 
-/* // list of players
-const players = [
-	{
-		id: '1',
-		name: 'Player'
-	},
-	{
-		id: '2',
-		name: 'Opponent'
-	},
-] */
+const players = []
 
-const games = [
-	{
-		id: 'game1',
-		name: 'Game 1',
-		players: {},
+
+//******** PLAYER JOINS GAME ********//
+
+ const handleJoinGame = function(username) {
+	debug(`Player ${username} with socket id ${this.id} wants to join the game`);
+
+	// is game full?
+	if (players.length > 1) {
+		console.log("Game is full")
+		debug(`Game is full. Connected players are ${username}`);
+		this.emit('game:full', true, (players) => {
+			players = players
+		})
+		return
 	}
-]
 
-/**
- * Get game by ID
- *
- * @param {String} id ID of game to get
- * @returns
- */
- const getGameById = id => {
-	return games.find(game => game.id === id)
+	// Create a player with socket id and username
+	const player = {
+		id: this.id,
+		username: username,
+	}
+
+	// Add the connected player to the player array 
+	players.push(player)
+
+	// let everyone know that a player joined the game
+	this.broadcast.emit('update:players', player.username)
+	debug(`Playerlist is updated and players in this game are ${username}`);
 }
 
-/**
- * Get game by User ID
- *
- * @param {String} id Socket ID of User to get Game by
- * @returns
- */
- const getGameByUserId = id => {
-	return games.find(gameRoom => gameRoom.players.hasOwnProperty(id));
-}
+//******** PLAYER DISCONNECTS ********//
 
-/* // Get player by ID
-const getPlayerById = id => {
-	return players.find(player => player.id === id)
-} */
-
-/**
- * Handle a user disconnecting
- *
- */
-const handleDisconnect = function() {
+ const handleDisconnect = function() {
 	debug(`Client ${this.id} disconnected :(`);
+
+	// find player that disconnected
+	const playerIndex = players.findIndex((player) => player.id === this.id);
+
+	// remove disconnected player from playerList
+	players.splice(playerIndex, 1);
+
+	this.broadcast.emit('player:disconnected', true);
 }
-
-/**
- * Handle a player joining a game
- *
- */
- const handleJoinGame = async function(username, game_id, callbak) {
-	debug(`Player ${username} with socket id ${this.id} wants to join the game with id '${game_id}'`);
-
-	this.join(game_id)
- 	// add socket to list of players
-	const game = getGameById(game_id)
-	
-	game.players[this.id] = username
-
-	this.broadcast.to(game.id).emit('player:joined', username)
-
-	callbak({
-		success: true,
-		roomName: game.name,
-		players: game.players
-	})
-
-	io.to(game.id).emit('player:list', game.players)
-
-	/* io.emit('join:game', game) */
-
-	/* io.emit('player:list', player_id) */
-}
-
-/**
- * Handle a player requesting a list of games
- *
- */
- const handleGetGameList = function(callback) {
-	// generate a list of games with only their id and name
-	const game_list = games.map(game => {
-		return {
-			id: game.id,
-			name: game.name,
-		}
-	});
-
-	// send list of rooms back to the client
-	callback(game_list);
-}
-
 
 /**
  * Random function
@@ -123,13 +70,9 @@ module.exports = function(socket, _io) {
 
 	debug(`Client ${socket.id} connected`)
 
-	// handle user disconnect
+	// handle player disconnect
 	socket.on('disconnect', handleDisconnect);
 
-	// listen for join:game events
-	/* socket.on('join:game', handleJoinGame) */
-
+	// handle player Joined
 	socket.on('player:joined', handleJoinGame)
-
-	socket.on('get-game-list', handleGetGameList)
 }
