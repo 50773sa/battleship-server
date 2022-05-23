@@ -40,6 +40,7 @@
   */
  io.on('connection', socket => {
      socket_controller(socket, io);
+     socket.emit('game:mounted', "Welcome to Battleship")
  });
  
  /**

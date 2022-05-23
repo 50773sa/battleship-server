@@ -7,48 +7,66 @@ let io = null;
 
 const players = []
 
+/* 
+const game = [
+	{
+		id: 1,
+		name: "game",
+		players: {},
+	}
+] */
+
 
 //******** PLAYER JOINS GAME ********//
 
  const handleJoinGame = function(username) {
 	debug(`Player ${username} with socket id ${this.id} wants to join the game`);
 
-	// is game full?
-	if (players.length > 1) {
+	// Check if there are one or two players connected
+	if (players.length <= 1) {
+		// Create a player with socket id and username
+		const player = {
+			socket_id: this.id,
+			username: username,
+			game: "game",
+			currentPlayer: "", 
+		}
+
+		this.join(player.game)
+
+		// Add the connected player to the player array 
+		players.push(player)
+		console.log("Players before emit", players)
+
+		// updater list of players
+		io.to(player.game).emit('update:players', players)
+
+	} else {	
 		console.log("Game is full")
 		debug(`Game is full. Connected players are ${username}`);
 		this.emit('game:full', true, (players) => {
 			players = players
 		})
-		return
+		delete this.id;
+        return;
 	}
-
-	// Create a player with socket id and username
-	const player = {
-		id: this.id,
-		username: username,
-	}
-
-	// Add the connected player to the player array 
-	players.push(player)
-
-	// let everyone know that a player joined the game
-	this.broadcast.emit('update:players', player.username)
-	debug(`Playerlist is updated and players in this game are ${username}`);
-}
+ }
 
 //******** PLAYER DISCONNECTS ********//
 
  const handleDisconnect = function() {
 	debug(`Client ${this.id} disconnected :(`);
 
-	// find player that disconnected
-	const playerIndex = players.findIndex((player) => player.id === this.id);
+	const removePlayer = (id) => {	
+		// find player that disconnected
+		const removePlayerIndex = players.findIndex((player) => player.id === id)
+		if (removePlayerIndex !== -1) 
+			// remove disconnected player from list of players
+			return players.splice(removePlayerIndex, 1)[0]
+	}
 
-	// remove disconnected player from playerList
-	players.splice(playerIndex, 1);
-
-	this.broadcast.emit('player:disconnected', true);
+	const player = removePlayer(this.id)
+	if (player) io.to(player.game).emit('player:disconnected', true)
 }
 
 /**
