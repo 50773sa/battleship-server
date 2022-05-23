@@ -36,12 +36,12 @@ const players = []
 	// If there are no player connected, then the first player will be playerOne
 	if (players.length === 0) { 
 		// Create playerOne with socket id and username
-		const playerOne = [{
+		const playerOne = {
 			socket_id: this.id,
 			username: username,
 			game: "game",
 			currentPlayer: "", 
-		}]
+		}
 
 
 		this.join(playerOne.game)
@@ -50,12 +50,11 @@ const players = []
 		players.push(playerOne)
 		console.log('PlayerOne: ', playerOne, 'Players: ', players)
 		debug('PlayerOne: ', playerOne, 'Players: ', players)
-		/* console.log(`PlayerOne: ${playerOne}, Players: ${players}`)
-		debug(`PlayerOne: ${playerOne}, Players: ${players}`) */
 
 		// update list of players
 		io.to(playerOne.game).emit('update:players', players) 
-		debug('Playerlist: ', players)
+		console.log('Playerlist after updating:', players)
+		debug('Playerlist after updating: ', players)
 	
  	} else if (players.length <= 1) {
 		 //if the connected player is the second player then save details to playerTwo
