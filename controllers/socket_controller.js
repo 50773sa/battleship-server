@@ -80,7 +80,7 @@ const players = []
 			players = players
 		})
 		delete this.id;
-        return;
+       	return; 
 	}
 
 		/* // join game
