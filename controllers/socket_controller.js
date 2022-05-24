@@ -43,8 +43,9 @@ const players = []
 			currentPlayer: "", 
 		}
 
-
 		this.join(playerOne.game)
+		debug('game after this.join playerOne:', game)
+		debug('playerOne: ', playerOne)
 
 		// Add the connected player to the arrays of players  
 		players.push(playerOne)
@@ -62,20 +63,25 @@ const players = []
 			socket_id: this.id,
 			username: username,
 			game: "game",
+			currentPlayer: "", 
 		}
 
 		this.join(playerTwo.game)
+		debug('game after this.join playerTwo:', game)
+		debug('playerTwo: ', playerTwo, 'playerOne: ', playerOne)
 
 		players.push(playerTwo)
 
-		console.log(`PlayerTwo: ${playerTwo}, Players: ${players}`)
-		debug(`PlayerTwo: ${playerTwo}, Players: ${players}`)
+		console.log('PlayerTwo: ', playerTwo, 'Players: ', players)
+		debug('PlayerTwo: ', playerTwo, 'Players: ', players)
 
 		// update list of players
 		io.to(playerTwo.game).emit('update:players', players)
+		console.log('Playerlist after updating playerTwo:', players)
+		debug('Playerlist after updating playerTwo: ', players)
 	 } else {	
 		console.log("Game is full")
-		debug(`Game is full. Connected players are ${username}`);
+		debug('Game is full. Connected players are ', players);
 		this.emit('game:full', true, (players) => {
 			players = players
 		})
@@ -121,20 +127,16 @@ const players = []
 	 this.broadcast.emit('player:disconnected', true);
  }
  
- /**
-  * Random function
-  * 
-  */
+ //******** RANDOM FUNCTION ********//
+ 
  const randomPosition = function () {
 	 const blockId = Math.floor(Math.random() * 100);
 	 return blockId;
  }
  
  
- /**
-  * Handle click event on cell
-  *
-  */
+ //******** HANDLE CLICKEVENTS ON CELL ********//
+
   const handleClickOnCell = function (click) {
 	 debug(`Client ${this.id} clicked on cell with id ${click.id}`)
  
