@@ -25,7 +25,6 @@ const getRoomByPlayerId = id => {
 	return rooms.find(gameroom => gameroom.players.hasOwnProperty(id))
 } 
 
-
 //******** PLAYER JOINS GAME ********//
 
  const handleJoinGame = async function(username, room_id, callback) {
@@ -51,7 +50,7 @@ const getRoomByPlayerId = id => {
 		players: room.players
 	})
 
-	// updater list of players
+	// update list of players. Send data back to client
 	io.to(room.id).emit('player:list', room.players) 
  }
  
@@ -92,14 +91,6 @@ const handleGetRoomList = function(callback) {
 	callback(room_list);
 }
  
- //******** RANDOM FUNCTION ********//
- 
- const randomPosition = function () {
-	 const blockId = Math.floor(Math.random() * 100);
-	 return blockId;
- }
- 
- 
  //******** HANDLE CLICKEVENTS ON CELL ********//
 
   const handleClickOnCell = function (click) {
@@ -107,7 +98,6 @@ const handleGetRoomList = function(callback) {
  
 	 this.emit('cell:clicked')
  }
- 
  
  /**
   * Export controller and attach handlers to events
