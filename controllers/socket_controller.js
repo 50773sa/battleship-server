@@ -5,127 +5,92 @@
 const debug = require('debug')('battleship:socket_controller');
 let io = null; 
 
-const players = []  
-
-/* const games = [
+const rooms = [
 	{
-		id: 1,
+		id: 'game',
 		name: "Game",
 		players: {},
 	}
-]  */
+]  
 
-//******** GET GAME BY ID ********//
+//******** GET ROOM BY ID ********//
 
-/* const getGameById = id => {
-	return games.find(game => game.id === id)
-} */
+const getRoomById = id => {
+	return rooms.find(room => room.id === id)
+} 
 
-//******** GET GAME BY PLAYER ID ********//
+//******** GET ROOM BY PLAYER ID ********//
 
-/* const getGameByPlayerId = id => {
-	return games.find(gameroom => gameroom.players.hasOwnProperty(id))
-} */
+const getRoomByPlayerId = id => {
+	return rooms.find(gameroom => gameroom.players.hasOwnProperty(id))
+} 
 
 
 //******** PLAYER JOINS GAME ********//
 
- const handleJoinGame = function(username) {
-	debug(`Player ${username} with socket id ${this.id} wants to join the game`);
+ const handleJoinGame = async function(username, room_id, callback) {
+	debug(`Player ${username} with socket id ${this.id} wants to join the game ${room_id}`);
 
-	// If there are no player connected, then the first player will be playerOne
-	if (players.length === 0) { 
-		// Create playerOne with socket id and username
-		const playerOne = {
-			socket_id: this.id,
-			username: username,
-			game: "game",
-			currentPlayer: "", 
-		}
-
-		this.join(playerOne.game)
-		debug('game after this.join playerOne:', game)
-		debug('playerOne: ', playerOne)
-
-		// Add the connected player to the arrays of players  
-		players.push(playerOne)
-		console.log('PlayerOne: ', playerOne, 'Players: ', players)
-		debug('PlayerOne: ', playerOne, 'Players: ', players)
-
-		// update list of players
-		io.to(playerOne.game).emit('update:players', players) 
-		console.log('Playerlist after updating:', players)
-		debug('Playerlist after updating: ', players)
-	
- 	} else if (players.length <= 1) {
-		 //if the connected player is the second player then save details to playerTwo
-		const playerTwo = {
-			socket_id: this.id,
-			username: username,
-			game: "game",
-			currentPlayer: "", 
-		}
-
-		this.join(playerTwo.game)
-		debug('game after this.join playerTwo:', game)
-		debug('playerTwo: ', playerTwo, 'playerOne: ', playerOne)
-
-		players.push(playerTwo)
-
-		console.log('PlayerTwo: ', playerTwo, 'Players: ', players)
-		debug('PlayerTwo: ', playerTwo, 'Players: ', players)
-
-		// update list of players
-		io.to(playerTwo.game).emit('update:players', players)
-		console.log('Playerlist after updating playerTwo:', players)
-		debug('Playerlist after updating playerTwo: ', players)
-	 } else {	
-		console.log("Game is full")
-		debug('Game is full. Connected players are ', players);
-		this.emit('game:full', true, (players) => {
-			players = players
-		})
-		delete this.id;
-       	return; 
-	}
-
-		/* // join game
-	this.join(game_id)
+	// join game
+	this.join(room_id)
 
 	// add socket to list of players in this game
 	// 1. find game
-	const game = getGameById(game_id)
+	const room = getRoomById(room_id)
 
 	// 2. add socket to game´s 'players' object
-	game.players[this.id] = username
+	room.players[this.id] = username
 
 	//let everyone know that someone has joined the game
-	this.broadcast.to(game.id).emoit('player:joined', username)
+	this.broadcast.to(room.id).emit('player:joined', username)
 
 	// confirm join
 	callback({
 		success: true,
-		gameName: game.name,
-		players: game.players
+		roomName: room.name,
+		players: room.players
 	})
 
 	// updater list of players
-	io.to(game.id).emit('update:players', game.players) */
+	io.to(room.id).emit('player:list', room.players) 
  }
  
  //******** PLAYER DISCONNECTS ********//
  
   const handleDisconnect = function() {
-	 debug(`Client ${this.id} disconnected :(`);
+	debug(`Client ${this.id} disconnected :(`);
  
-	 // find player that disconnected
-	 const playerIndex = players.findIndex((player) => player.id === this.id);
- 
-	 // remove disconnected player from playerList
-	 players.splice(playerIndex, 1);
- 
-	 this.broadcast.emit('player:disconnected', true);
+	// find the room that the socket is a part of
+	const room = getRoomByPlayerId(this.id)
+
+	// if socket was not in a room, don't broadcast disconnect
+	if (!room) {
+		return;
+	}
+	
+	// let everyone in the room know that this player has disconnected
+	this.broadcast.to(room.id).emit('player:disconnected', room.players[this.id])
+
+	// remove player from list of players in that room
+	delete room.players[this.id];
+
+	// broadcast list of players in room to all connected sockets EXCEPT ourselves
+	this.broadcast.to(room.id).emit('player:list', room.players);
  }
+ 
+ //****** HANDLE A PLAYER REQUESTING A LIST OF ROOMS ******//
+const handleGetRoomList = function(callback) {
+	// generate a list of rooms with only their id and name
+	const room_list = rooms.map(room => {
+		return {
+			id: room.id,
+			name: room.name,
+		}
+	});
+
+	// send list of rooms back to the client
+	callback(room_list);
+}
  
  //******** RANDOM FUNCTION ********//
  
@@ -159,7 +124,10 @@ const players = []
  
 	 // handle player Joined
 	 socket.on('player:joined', handleJoinGame)
- 
+
+	// handle get room list request
+	socket.on('get-room-list', handleGetRoomList);
+
 	 // handle click on cell
 	 socket.on('cell:clicked', handleClickOnCell)
  }
