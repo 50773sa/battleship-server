@@ -47,13 +47,20 @@ const getRoomByPlayerId = id => {
 	callback({
 		success: true,
 		roomName: room.name,
-		players: room.players
+		players: room.players,
+		yourTurn: true 
 	})
 
 	// update list of players. Send data back to client
 	io.to(room.id).emit('player:list', room.players) 
  }
- 
+
+  //******** START GAME ********//
+
+ const handleStartGame = function(room, username) {
+	this.broadcast.to(room.id).emit('start:game', username)
+ }
+
  //******** PLAYER DISCONNECTS ********//
  
   const handleDisconnect = function() {
@@ -120,4 +127,7 @@ const handleGetRoomList = function(callback) {
 
 	 // handle click on cell
 	 socket.on('cell:clicked', handleClickOnCell)
+
+	 // handle start game
+	 socket.on('start:game', handleStartGame)
  }
