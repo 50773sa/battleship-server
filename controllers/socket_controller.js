@@ -56,7 +56,7 @@ const getRoomByPlayerId = id => {
  }
 
   //******** START GAME ********//
-
+// när spelet startar ska yourTurn sättas till false för spelare 2 (alltså den som anslutit sist). Och vi ska också "nollställa" varje spelares skepp så att man börjar med 4 skepp var. 
  const handleStartGame = function(room, username) {
 	this.broadcast.to(room.id).emit('start:game', username)
  }
