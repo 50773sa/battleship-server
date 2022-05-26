@@ -27,7 +27,7 @@ const getRoomByPlayerId = id => {
 
 //******** PLAYER JOINS GAME ********//
 
- const handleJoinGame = async function(username, room_id, callback) {
+ const handleJoinGame = async function(username, room_id, socket, callback) {
 	debug(`Player ${username} with socket id ${this.id} wants to join the game ${room_id}`);
 
 	// join game
@@ -48,7 +48,7 @@ const getRoomByPlayerId = id => {
 		success: true,
 		roomName: room.name,
 		players: room.players,
-		yourTurn: true 
+		yourTurn: true, 
 	})
 
 	// update list of players. Send data back to client
