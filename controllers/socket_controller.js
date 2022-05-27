@@ -27,38 +27,57 @@ const getRoomByPlayerId = id => {
 
 //******** PLAYER JOINS GAME ********//
 
- const handleJoinGame = async function(username, room_id, socket, callback) {
-	debug(`Player ${username} with socket id ${this.id} wants to join the game ${room_id}`);
-
-	// join game
-	this.join(room_id)
+ const handleJoinGame = async function(username, room_id, callback) {
+	debug(`Player ${username} with socket id ${this.id} wants to join ${room_id}`);
 
 	// add socket to list of players in this game
 	// 1. find game
 	const room = getRoomById(room_id)
+	debug(`room is: ${room_id}`);
+
+	// If there are already 2 connected players, then dont let the 3rd player join the game
+ 	if(Object.keys(room.players).length === 2) {
+		return (
+			callback({
+				success: false
+			})
+		)
+	} 
+	debug(`Number of players in room is: ${Object.keys(room.players).length}`); 
 
 	// 2. add socket to game´s 'players' object
 	room.players[this.id] = username
+	debug(`this player is: ${username}`);
+
+	// join game
+	this.join(room_id)
 
 	//let everyone know that someone has joined the game
-	this.broadcast.to(room.id).emit('player:joined', username)
-
+	/* this.broadcast.to(room.id).emit('player:joined', username)
+	debug(`username after broadcast emit: ${username}`);
+ */
 	// confirm join
 	callback({
 		success: true,
 		roomName: room.name,
 		players: room.players,
-		yourTurn: true, 
+		yourTurn: Object.keys(room.players).length === 1 ? true : false,
+		numberOfPlayers: Object.keys(room.players).length // returns how many players in the game
 	})
 
 	// update list of players. Send data back to client
 	io.to(room.id).emit('player:list', room.players) 
+	debug('players after emit player:list: ',room.players);
+
+	// if players.length === 2
+	io.to(room.id).emit('start:game')
  }
 
   //******** START GAME ********//
 // när spelet startar ska yourTurn sättas till false för spelare 2 (alltså den som anslutit sist). Och vi ska också "nollställa" varje spelares skepp så att man börjar med 4 skepp var. 
- const handleStartGame = function(room, username) {
-	this.broadcast.to(room.id).emit('start:game', username)
+ const handleStartGame = function(room, players) {
+debug(`Players in ${room} are ${players}.`); 
+	this.broadcast.to(room).emit('start:game', players)
  }
 
  //******** PLAYER DISCONNECTS ********//
