@@ -117,36 +117,37 @@ const handleGetRoomList = function(callback) {
 	callback(room_list);
 }
  
- //******** HANDLE CLICKEVENTS ON CELL ********//
+// ******** Handle Shot ********//
 
-  const handleClickOnCell = function (click) {
-	 debug(`Client ${this.id} clicked on cell with id ${click.id}`)
+const handleShotFired = function (data) {
+	console.log(`Shot fired: ${data}`)
+
+	this.emit('receive:shot', data)
+
+}
  
-	 this.emit('cell:clicked')
- }
+/**
+* Export controller and attach handlers to events
+*
+*/
+module.exports = function(socket, _io) {
+	// save a reference to the socket.io server instance
+	io = _io;
  
- /**
-  * Export controller and attach handlers to events
-  *
-  */
- module.exports = function(socket, _io) {
-	 // save a reference to the socket.io server instance
-	 io = _io;
+	debug(`Client ${socket.id} connected`)
  
-	 debug(`Client ${socket.id} connected`)
+	// handle player disconnect
+	socket.on('disconnect', handleDisconnect);
  
-	 // handle player disconnect
-	 socket.on('disconnect', handleDisconnect);
- 
-	 // handle player Joined
-	 socket.on('player:joined', handleJoinGame)
+	// handle player Joined
+	socket.on('player:joined', handleJoinGame)
 
 	// handle get room list request
 	socket.on('get-room-list', handleGetRoomList);
 
-	 // handle click on cell
-	 socket.on('cell:clicked', handleClickOnCell)
+	//handle shot
+	socket.on('shot:fired', handleShotFired)	
 
-	 // handle start game
-	 socket.on('start:game', handleStartGame)
+	// handle start game
+	socket.on('start:game', handleStartGame)
  }
