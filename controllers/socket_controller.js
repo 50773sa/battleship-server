@@ -27,11 +27,9 @@ const getRoomByPlayerId = id => {
 
 //******** PLAYER JOINS GAME ********//
 
- const handleJoinGame = async function(username, room_id, callback) {
+const handleJoinGame = async function(username, room_id, callback) {
 	debug(`Player ${username} with socket id ${this.id} wants to join ${room_id}`);
 
-	// add socket to list of players in this game
-	// 1. find game
 	const room = getRoomById(room_id)
 	debug(`room is: ${room_id}`);
 
@@ -45,17 +43,12 @@ const getRoomByPlayerId = id => {
 	} 
 	debug(`Number of players in room is: ${Object.keys(room.players).length}`); 
 
-	// 2. add socket to game´s 'players' object
 	room.players[this.id] = username
 	debug(`this player is: ${username}`);
 
 	// join game
 	this.join(room_id)
 
-	//let everyone know that someone has joined the game
-	/* this.broadcast.to(room.id).emit('player:joined', username)
-	debug(`username after broadcast emit: ${username}`);
- */
 	// confirm join
 	callback({
 		success: true,
@@ -71,14 +64,59 @@ const getRoomByPlayerId = id => {
 
 	// if players.length === 2
 	io.to(room.id).emit('start:game')
+}
+
+//******** GET NUMBER OF SHIPS ********//
+
+const handleGetNumberOfShips = async function(ships,  callback) { 
+
+	const shipsLength = Object.keys(ships).length
+	debug(`ships length is: ${shipsLength}`)
+
+	callback({
+		success: true, 
+		numberOfShips: shipsLength,
+	})
+
+	debug(`Length of ships is: ${shipsLength}`)
+
+
+	/* playerNumberOfShips = Object.keys(ships).length
+	debug(`Ships for this player is: ${playerNumberOfShips}`);
+
+	opponentNumberOfShips = Object.keys(ships[!this.id]).length
+	debug(`Ships for opponent is: ${opponentNumberOfShips}`);
+	 */
+/* 	// generate a list of ships for player and opponent
+	const ships_list = ships.map(ship => {
+		return {
+			playerNumberOfShips: Object.keys(ship[this.id]).length,
+			opponentNumberOfShips: Object.keys(ship[!this.id]).length
+		}
+	});
+
+	// send list of ships back to the client
+	callback(ships_list); */
+	
+	/* 
+	room.players[this.id] = playerNumberOfShips
+	debug(`Ships for this player is: ${playerNumberOfShips}`);
+
+	room.players[!this.id] = opponentNumberOfShips
+	debug(`Ships for opponent is: ${opponentNumberOfShips}`); */
+
+	// confirm get number of ships
+/* 	callback({
+		success: true,
+		numberOfShips: Object.keys(ships).length,
+	})
+	debug(`Successully got number of ships for player: ${playerNumberOfShips} and opponent: ${opponentNumberOfShips}`);
+ */
+/* 	// update list of players ships
+	io.to(room.id).emit('player:ships', numberOfShips) 
+	debug('ships after emit player:ships: ',numberOfShips);  */
  }
 
-  //******** START GAME ********//
-// när spelet startar ska yourTurn sättas till false för spelare 2 (alltså den som anslutit sist). Och vi ska också "nollställa" varje spelares skepp så att man börjar med 4 skepp var. 
- const handleStartGame = function(room, players) {
-debug(`Players in ${room} are ${players}.`); 
-	this.broadcast.to(room).emit('start:game', players)
- }
 
  //******** PLAYER DISCONNECTS ********//
  
@@ -148,6 +186,6 @@ module.exports = function(socket, _io) {
 	//handle shot
 	socket.on('shot:fired', handleShotFired)	
 
-	// handle start game
-	socket.on('start:game', handleStartGame)
+	// handle get number of ships
+	socket.on('get-number-of-ships', handleGetNumberOfShips)
  }
