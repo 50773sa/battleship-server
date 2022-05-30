@@ -162,8 +162,21 @@ const handleShotFired = function (data) {
 
 	this.emit('receive:shot', data)
 
+	// ta emot e.target.classname
+	// ta emot från battleboard
 }
  
+const handleShotReceived = function (data) {
+	console.log(`Shot fired: ${data}`)
+
+	
+	// this.emit('receive:shot', data)
+
+	// ta emot e.target.classname
+	// ta emot från battleboard
+}
+ 
+
 /**
 * Export controller and attach handlers to events
 *
