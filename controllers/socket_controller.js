@@ -5,11 +5,12 @@
 const debug = require('debug')('battleship:socket_controller');
 let io = null; 
 
+const players = []
 const rooms = [
 	{
 		id: 'game',
 		name: "Game",
-		players: {},
+		players
 	}
 ]  
 
@@ -33,15 +34,23 @@ const handleJoinGame = async function(username, room_id, callback) {
 	const room = getRoomById(room_id)
 	debug(`room is: ${room_id}`);
 
+	const player = {
+		id: this.id,
+		username: username,
+	}
+
+	players.push(player)
+	debug('Player number 1 is: ', player)
+
 	// If there are already 2 connected players, then dont let the 3rd player join the game
- 	if(Object.keys(room.players).length === 2) {
+/*  	if(room.players.length === 2) {
 		return (
 			callback({
 				success: false
 			})
 		)
 	} 
-	debug(`Number of players in room is: ${Object.keys(room.players).length}`); 
+	debug('Number of players in room is:', room.players.length);  */
 
 	room.players[this.id] = username
 	debug(`this player is: ${username}`);
@@ -54,16 +63,18 @@ const handleJoinGame = async function(username, room_id, callback) {
 		success: true,
 		roomName: room.name,
 		players: room.players,
-		yourTurn: Object.keys(room.players).length === 1 ? true : false,
-		numberOfPlayers: Object.keys(room.players).length // returns how many players in the game
+		yourTurn: room.players.length === 1 ? true : false,
+		numberOfPlayers: room.players.length // returns how many players in the game
 	})
 
 	// update list of players. Send data back to client
 	io.to(room.id).emit('player:list', room.players) 
 	debug('players after emit player:list: ',room.players);
 
-	// if players.length === 2
-	io.to(room.id).emit('start:game')
+/* 	if (players.length === 2) {
+		room.players = []
+	} */
+	/* io.to(room.id).emit('start:game') */
 }
 
 //******** GET NUMBER OF SHIPS ********//
@@ -131,6 +142,8 @@ const handleGetNumberOfShips = async function(ships, callback) {
 		return;
 	}
 	
+	room.players = []
+	
 	// let everyone in the room know that this player has disconnected
 	this.broadcast.to(room.id).emit('player:disconnected', room.players[this.id])
 
@@ -140,6 +153,25 @@ const handleGetNumberOfShips = async function(ships, callback) {
 	// broadcast list of players in room to all connected sockets EXCEPT ourselves
 	this.broadcast.to(room.id).emit('player:list', room.players);
  }
+
+//****** HANDLE A PLAYER LEAVING ******/
+
+const handlePlayerLeft = async function(username, room_id) {
+	debug(`Player ${username} with socket id ${this.id} left the game '${room_id}'`)
+
+	// leave game
+	this.leave(room_id)
+
+	// remove socket from list of players
+	const room = getRoomById(room_id)
+	delete room.players[this.id]
+
+	room.players = []
+
+	this.broadcast.to(room.id).emit('player:left', username)
+
+	io.to(room.id).emit('player:list', room.players)
+}
  
  //****** HANDLE A PLAYER REQUESTING A LIST OF ROOMS ******//
 const handleGetRoomList = function(callback) {
@@ -155,7 +187,7 @@ const handleGetRoomList = function(callback) {
 	callback(room_list);
 }
  
-// ******** Handle Shot ********//
+// ******** HANDLE SHOT ********//
 
 const handleShotFired = function (data) {
 	console.log(`Shot fired: ${data}`)
@@ -179,6 +211,9 @@ module.exports = function(socket, _io) {
  
 	// handle player Joined
 	socket.on('player:joined', handleJoinGame)
+
+	// handle player left
+	socket.on('player:left', handlePlayerLeft)
 
 	// handle get room list request
 	socket.on('get-room-list', handleGetRoomList);
