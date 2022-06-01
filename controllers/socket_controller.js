@@ -10,7 +10,7 @@ const rooms = [
 	{
 		id: 'game',
 		name: "Game",
-		players
+		players: players
 	}
 ]  
 
@@ -40,17 +40,17 @@ const handleJoinGame = async function(username, room_id, callback) {
 	}
 
 	players.push(player)
-	debug('Player number 1 is: ', player)
+	debug('Player number 1 is: ', player.username)
 
 	// If there are already 2 connected players, then dont let the 3rd player join the game
-/*  	if(room.players.length === 2) {
+  	if(room.players.length === 2) {
 		return (
 			callback({
 				success: false
 			})
 		)
 	} 
-	debug('Number of players in room is:', room.players.length);  */
+	debug('Number of players in room is:', room.players.length);   
 
 	room.players[this.id] = username
 	debug(`this player is: ${username}`);
@@ -69,12 +69,9 @@ const handleJoinGame = async function(username, room_id, callback) {
 
 	// update list of players. Send data back to client
 	io.to(room.id).emit('player:list', room.players) 
-	debug('players after emit player:list: ',room.players);
+	debug('players after emit player:list: ', room.players);
 
-/* 	if (players.length === 2) {
-		room.players = []
-	} */
-	/* io.to(room.id).emit('start:game') */
+	io.to(room.id).emit('start:game') 
 }
 
 //******** GET NUMBER OF SHIPS ********//
@@ -143,7 +140,7 @@ const handleGetNumberOfShips = async function(ships, callback) {
 	}
 	
 	room.players = []
-	
+
 	// let everyone in the room know that this player has disconnected
 	this.broadcast.to(room.id).emit('player:disconnected', room.players[this.id])
 
