@@ -43,14 +43,14 @@ const handleJoinGame = async function(username, room_id, callback) {
 	debug('Player number 1 is: ', player.username)
 
 	// If there are already 2 connected players, then dont let the 3rd player join the game
-  	if(room.players.length === 2) {
+  /* 	if(room.players.length === 2) {
 		return (
 			callback({
 				success: false
 			})
 		)
 	} 
-	debug('Number of players in room is:', room.players.length);   
+	debug('Number of players in room is:', room.players.length);   */ 
 
 	room.players[this.id] = username
 	debug(`this player is: ${username}`);
@@ -64,7 +64,7 @@ const handleJoinGame = async function(username, room_id, callback) {
 		roomName: room.name,
 		players: room.players,
 		yourTurn: room.players.length === 1 ? true : false,
-		numberOfPlayers: room.players.length // returns how many players in the game
+		numberOfPlayers: room.players.length 
 	})
 
 	// update list of players. Send data back to client
