@@ -152,7 +152,7 @@ const handleGetNumberOfShips = async function(ships, callback) {
 //****** HANDLE A PLAYER LEAVING ******/
 
 const handlePlayerLeft = async function(username, room_id) {
-	debug(`Player ${username} with socket id ${this.id} left the '${room_id}'`)
+	debug(`Player ${username} with socket id ${this.id} left the ${room_id}`)
 
 	// leave game
 	this.leave(room_id)
@@ -196,19 +196,9 @@ const handleShotFired = function (data) {
 
 	// ta emot e.target.classname
 	// ta emot från battleboard
+
 }
  
-const handleShotReceived = function (data) {
-	console.log(`Shot fired: ${data}`)
-
-	
-	// this.emit('receive:shot', data)
-
-	// ta emot e.target.classname
-	// ta emot från battleboard
-}
- 
-
 /**
 * Export controller and attach handlers to events
 *
