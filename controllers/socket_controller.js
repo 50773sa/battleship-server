@@ -160,7 +160,12 @@ const handleGetRoomList = function(callback) {
 const handleShotFired = function (data) {
 	console.log(`Shot fired: ${data}`)
 
-	this.emit('receive:shot', data)
+	// hit
+	this.emit('receive:hit', data)
+
+
+
+	// miss
 
 }
  
@@ -184,7 +189,7 @@ module.exports = function(socket, _io) {
 	socket.on('get-room-list', handleGetRoomList);
 
 	//handle shot
-	socket.on('shot:fired', handleShotFired)	
+	socket.on('shot:hit', handleShotFired)	
 
 	// handle get number of ships
 	socket.on('get-number-of-ships', handleGetNumberOfShips)
