@@ -38,26 +38,28 @@ const handleJoinGame = async function(username, room_id, callback) {
 		id: this.id,
 		username: username,
 	}
-
+	
 	players.push(player)
 	debug('Player number 1 is: ', player.username)
-
-	// If there are already 2 connected players, then dont let the 3rd player join the game
-  /* 	if(room.players.length === 2) {
+	
+	room.players[this.id] = username
+	debug(`this player is: ${username}`);
+	
+	// join game
+	this.join(room_id)	
+	
+/* 	if(room.players.length === 2) {
+		this.emit('game:full')
+		delete this.id 
 		return (
 			callback({
 				success: false
 			})
 		)
-	} 
-	debug('Number of players in room is:', room.players.length);   */ 
+	}  */
 
-	room.players[this.id] = username
-	debug(`this player is: ${username}`);
-
-	// join game
-	this.join(room_id)
-
+	debug('Number of players in room is:', room.players.length); 
+	
 	// confirm join
 	callback({
 		success: true,
@@ -139,35 +141,31 @@ const handleGetNumberOfShips = async function(ships, callback) {
 		return;
 	}
 	
+	// empty players array when a player disconnect
 	room.players = []
+	debug(`Someone DISCONNECTED. The player array is now empty`, room.players)
 
 	// let everyone in the room know that this player has disconnected
 	this.broadcast.to(room.id).emit('player:disconnected', room.players[this.id])
-
-	// remove player from list of players in that room
-	delete room.players[this.id];
-
-	// broadcast list of players in room to all connected sockets EXCEPT ourselves
-	this.broadcast.to(room.id).emit('player:list', room.players);
  }
 
 //****** HANDLE A PLAYER LEAVING ******/
 
 const handlePlayerLeft = async function(username, room_id) {
-	debug(`Player ${username} with socket id ${this.id} left the game '${room_id}'`)
+	debug(`Player ${username} with socket id ${this.id} left the '${room_id}'`)
 
 	// leave game
 	this.leave(room_id)
 
 	// remove socket from list of players
 	const room = getRoomById(room_id)
-	delete room.players[this.id]
+	/* delete room.players[this.id] */
 
+	// empty players array when a player disconnect
 	room.players = []
+	debug(`Someone LEFT the game. The player array is now empty`, room.players)
 
 	this.broadcast.to(room.id).emit('player:left', username)
-
-	io.to(room.id).emit('player:list', room.players)
 }
  
  //****** HANDLE A PLAYER REQUESTING A LIST OF ROOMS ******//
