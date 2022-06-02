@@ -34,6 +34,14 @@ const handleJoinGame = async function(username, room_id, callback) {
 	const room = getRoomById(room_id)
 	debug(`room is: ${room_id}`);
 
+	if(room.players.length === 2) {
+		return (
+			callback({
+				success: false
+			})
+		)
+	}  
+
 	const player = {
 		id: this.id,
 		username: username,
@@ -47,17 +55,6 @@ const handleJoinGame = async function(username, room_id, callback) {
 	
 	// join game
 	this.join(room_id)	
-	
-/* 	if(room.players.length === 2) {
-		this.emit('game:full')
-		delete this.id 
-		return (
-			callback({
-				success: false
-			})
-		)
-	}  */
-
 	debug('Number of players in room is:', room.players.length); 
 	
 	// confirm join
@@ -129,7 +126,6 @@ const handleGetNumberOfShips = async function(ships, callback) {
 
 
  //******** PLAYER DISCONNECTS ********//
- 
   const handleDisconnect = function() {
 	debug(`Client ${this.id} disconnected :(`);
  
@@ -140,35 +136,11 @@ const handleGetNumberOfShips = async function(ships, callback) {
 	if (!room) {
 		return;
 	}
-	
-	// empty players array when a player disconnect
-	room.players = []
-	debug(`Someone DISCONNECTED. The player array is now empty`, room.players)
 
-	// let everyone in the room know that this player has disconnected
 	this.broadcast.to(room.id).emit('player:disconnected', room.players[this.id])
  }
 
-//****** HANDLE A PLAYER LEAVING ******/
-
-const handlePlayerLeft = async function(username, room_id) {
-	debug(`Player ${username} with socket id ${this.id} left the ${room_id}`)
-
-	// leave game
-	this.leave(room_id)
-
-	// remove socket from list of players
-	const room = getRoomById(room_id)
-	/* delete room.players[this.id] */
-
-	// empty players array when a player disconnect
-	room.players = []
-	debug(`Someone LEFT the game. The player array is now empty`, room.players)
-
-	this.broadcast.to(room.id).emit('player:left', username)
-}
- 
- //****** HANDLE A PLAYER REQUESTING A LIST OF ROOMS ******//
+//****** HANDLE A PLAYER REQUESTING A LIST OF ROOMS ******//
 const handleGetRoomList = function(callback) {
 	// generate a list of rooms with only their id and name
 	const room_list = rooms.map(room => {
@@ -214,9 +186,6 @@ module.exports = function(socket, _io) {
  
 	// handle player Joined
 	socket.on('player:joined', handleJoinGame)
-
-	// handle player left
-	socket.on('player:left', handlePlayerLeft)
 
 	// handle get room list request
 	socket.on('get-room-list', handleGetRoomList);
