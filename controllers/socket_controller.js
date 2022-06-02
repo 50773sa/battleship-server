@@ -5,12 +5,12 @@
 const debug = require('debug')('battleship:socket_controller');
 let io = null; 
 
-const players = []
+/* const players = [] */
 const rooms = [
 	{
 		id: 'game',
 		name: "Game",
-		players: players
+		players: []
 	}
 ]  
 
@@ -23,7 +23,7 @@ const getRoomById = id => {
 //******** GET ROOM BY PLAYER ID ********//
 
 const getRoomByPlayerId = id => {
-	return rooms.find(gameroom => gameroom.players.hasOwnProperty(id))
+	return rooms.find(gameroom => gameroom.players.find(player => player.id === id))
 } 
 
 //******** PLAYER JOINS GAME ********//
@@ -47,13 +47,9 @@ const handleJoinGame = async function(username, room_id, callback) {
 		username: username,
 	}
 	
-	players.push(player)
-	debug('Player number 1 is: ', player.username)
+	room.players.push(player)
+	debug('Player is: ', player.username)
 	
-	room.players[this.id] = username
-	debug(`this player is: ${username}`);
-	
-	// join game
 	this.join(room_id)	
 	debug('Number of players in room is:', room.players.length); 
 	
