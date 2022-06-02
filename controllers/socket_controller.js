@@ -172,7 +172,20 @@ const handleShotFired = function (data) {
 	// ta emot från battleboard
 
 }
+ const handlePlayerShot = function (data) {
+	console.log(`Shot fired:`, data)
+
+	// skicka vidare skottet till battleboard
+	io.emit('receive:shot', data)
+ }
  
+
+ const handleShotResult = function (data) {
+	console.log(`We´ve got a result:`, data)
+
+	// skicka vidare resultatet till opponent battleboard
+	io.emit('final:result', data)
+ }
 /**
 * Export controller and attach handlers to events
 *
@@ -199,4 +212,8 @@ module.exports = function(socket, _io) {
 	socket.on('get-number-of-ships', handleGetNumberOfShips)
 
 	socket.on('place:ships', handlePlaceShips)
+
+	socket.on('player:shot', handlePlayerShot)
+
+	socket.on('shot:result', handleShotResult)
  }
