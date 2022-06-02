@@ -159,10 +159,10 @@ const handleGetRoomList = function(callback) {
 // ******** HANDLE SHOT ********//
 
 const handleShotFired = function (data) {
-	console.log(`Shot fired: ${data}`)
+	console.log(`Shot fired:`, data)
 
 	// hit
-	this.emit('receive:hit', data)
+	io.emit('receive:hit', data)
 
 
 
