@@ -65,28 +65,22 @@ const handleJoinGame = async function(username, room_id, callback) {
 	// update list of players. Send data back to client
 	io.to(room.id).emit('player:list', room.players) 
 	debug('players after emit player:list: ', room.players);
-}
 
-const handlePlaceShips = async function(data, callback) {
-	debug(`Started placing ships on serverside. ShotData is ${data}`)
-
-	callback({
-		success: true
-	})
+	/* io.to(room.id).emit('update-number-of-ships') */
 }
 
 //******** GET NUMBER OF SHIPS ********//
 
-const handleGetNumberOfShips = async function(playerShips, callback) { 
+const handleGetNumberOfShips = async function(ships, callback) { 
 
-	const shipsLength = playerShips.length
+	const numberOfShips = ships.length
 
 	callback({
 		success: true, 
-		numberOfShips: shipsLength,
+		numberOfShips: numberOfShips
 	})
 
-	debug(`Length of ships is: ${shipsLength}`, playerShips)
+	debug(`Length of ships is: ${numberOfShips}`, ships)
 
 	// update list of players ships
 	/* io.emit('player:ships')  */
@@ -210,8 +204,6 @@ module.exports = function(socket, _io) {
 
 	// handle get number of ships
 	socket.on('get-number-of-ships', handleGetNumberOfShips)
-
-	socket.on('place:ships', handlePlaceShips)
 
 	socket.on('player:shot', handlePlayerShot)
 
