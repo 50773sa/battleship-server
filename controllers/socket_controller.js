@@ -65,61 +65,7 @@ const handleJoinGame = async function(username, room_id, callback) {
 	// update list of players. Send data back to client
 	io.to(room.id).emit('player:list', room.players) 
 	debug('players after emit player:list: ', room.players);
-
-	/* io.to(room.id).emit('update-number-of-ships') */
 }
-
-//******** GET NUMBER OF SHIPS ********//
-
-const handleGetNumberOfShips = async function(ships, callback) { 
-
-	const numberOfShips = ships.length
-
-	callback({
-		success: true, 
-		numberOfShips: numberOfShips
-	})
-
-	debug(`Length of ships is: ${numberOfShips}`, ships)
-
-	// update list of players ships
-	/* io.emit('player:ships')  */
-
-
-	/* playerNumberOfShips = Object.keys(ships).length
-	debug(`Ships for this player is: ${playerNumberOfShips}`);
-
-	opponentNumberOfShips = Object.keys(ships[!this.id]).length
-	debug(`Ships for opponent is: ${opponentNumberOfShips}`);
-	 */
-/* 	// generate a list of ships for player and opponent
-	const ships_list = ships.map(ship => {
-		return {
-			playerNumberOfShips: Object.keys(ship[this.id]).length,
-			opponentNumberOfShips: Object.keys(ship[!this.id]).length
-		}
-	});
-
-	// send list of ships back to the client
-	callback(ships_list); */
-	
-	/* 
-	room.players[this.id] = playerNumberOfShips
-	debug(`Ships for this player is: ${playerNumberOfShips}`);
-
-	room.players[!this.id] = opponentNumberOfShips
-	debug(`Ships for opponent is: ${opponentNumberOfShips}`); */
-
-	// confirm get number of ships
-/* 	callback({
-		success: true,
-		numberOfShips: Object.keys(ships).length,
-	})
-	debug(`Successully got number of ships for player: ${playerNumberOfShips} and opponent: ${opponentNumberOfShips}`);
- */
-
- }
-
 
  //******** PLAYER DISCONNECTS ********//
   const handleDisconnect = function() {
@@ -201,9 +147,6 @@ module.exports = function(socket, _io) {
 
 	//handle shot
 	socket.on('shot:hit', handleShotFired)	
-
-	// handle get number of ships
-	socket.on('get-number-of-ships', handleGetNumberOfShips)
 
 	socket.on('player:shot', handlePlayerShot)
 
