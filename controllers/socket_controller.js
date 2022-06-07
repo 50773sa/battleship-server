@@ -97,33 +97,19 @@ const handleGetRoomList = function(callback) {
 }
  
 // ******** HANDLE SHOT ********//
-
-const handleShotFired = function (data) {
-	console.log(`Shot fired:`, data)
-
-	// hit
-	io.emit('receive:hit', data)
-
-
-
-	// miss
-
-	// ta emot e.target.classname
-	// ta emot från battleboard
-
-}
  const handlePlayerShot = function (data) {
-	console.log(`Shot fired:`, data)
+	console.log("STEP 2: Shot fired: ", data)
 
 	// skicka vidare skottet till battleboard
 	io.emit('receive:shot', data)
+	console.log(`STEP 3: Sending ${data} (cell id) to battleboard`)
  }
  
 
  const handleShotResult = function (data) {
 	console.log(`We´ve got a result:`, data)
 
-	// skicka vidare resultatet till opponent battleboard
+	// STEG 3. skicka vidare resultatet till opponent battleboard
 	io.emit('final:result', data)
  }
 /**
@@ -145,9 +131,7 @@ module.exports = function(socket, _io) {
 	// handle get room list request
 	socket.on('get-room-list', handleGetRoomList);
 
-	//handle shot
-	socket.on('shot:hit', handleShotFired)	
-
+	// STEG 2 handle player shot
 	socket.on('player:shot', handlePlayerShot)
 
 	socket.on('shot:result', handleShotResult)
