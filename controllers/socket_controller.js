@@ -97,12 +97,14 @@ const handleGetRoomList = function(callback) {
 }
  
 // ******** HANDLE SHOT ********//
- const handlePlayerShot = function (data) {
-	console.log("STEP 2: Shot fired: ", data)
+ const handlePlayerShot = function (cellId, otherPlayer) {
+	console.log(`STEP 2: Shot fired on cell: ${cellId}`)
+
+	console.log("STEP 2.1: opponent is: ", otherPlayer)
 
 	// skicka vidare skottet till battleboard
-	io.emit('receive:shot', data)
-	console.log(`STEP 3: Sending ${data} (cell id) to battleboard`)
+	io.emit('receive:shot', cellId, otherPlayer)
+	console.log(`STEP 3: Sending ${cellId} (cell id) to battleboard belong to ${otherPlayer}`)
  }
  
 
