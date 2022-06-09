@@ -5,7 +5,6 @@
 const debug = require('debug')('battleship:socket_controller');
 let io = null; 
 
-/* const players = [] */
 const rooms = [
 	{
 		id: 'game',
@@ -32,7 +31,6 @@ const handleJoinGame = async function(username, room_id, callback) {
 	debug(`Player ${username} with socket id ${this.id} wants to join ${room_id}`);
 
 	const room = getRoomById(room_id)
-	debug(`room is: ${room_id}`);
 
 	if(room.players.length === 2) {
 		return (
@@ -48,7 +46,6 @@ const handleJoinGame = async function(username, room_id, callback) {
 	}
 	
 	room.players.push(player)
-	debug('Player is: ', player.username)
 	
 	this.join(room_id)	
 	debug('Number of players in room is:', room.players.length); 
@@ -62,7 +59,6 @@ const handleJoinGame = async function(username, room_id, callback) {
 		numberOfPlayers: room.players.length 
 	})
 
-	// update list of players. Send data back to client
 	io.to(room.id).emit('player:list', room.players) 
 	debug('players after emit player:list: ', room.players);
 }
@@ -84,7 +80,6 @@ const handleJoinGame = async function(username, room_id, callback) {
 
 //****** HANDLE A PLAYER REQUESTING A LIST OF ROOMS ******//
 const handleGetRoomList = function(callback) {
-	// generate a list of rooms with only their id and name
 	const room_list = rooms.map(room => {
 		return {
 			id: room.id,
@@ -92,28 +87,27 @@ const handleGetRoomList = function(callback) {
 		}
 	});
 
-	// send list of rooms back to the client
 	callback(room_list);
 }
  
 // ******** HANDLE SHOT ********//
  const handlePlayerShot = function (cellId, otherPlayer) {
-	console.log(`STEP 2: Shot fired on cell: ${cellId}`)
+	console.log(`STEP 2: Shot fired on cell: ${cellId} by ${otherPlayer}`)
 
-	console.log("STEP 2.1: opponent is: ", otherPlayer)
-
-	// skicka vidare skottet till battleboard
-	io.emit('receive:shot', cellId, otherPlayer)
-	console.log(`STEP 3: Sending ${cellId} (cell id) to battleboard belong to ${otherPlayer}`)
+	 const room = getRoomByPlayerId(this.id)
+ 
+	 // send data ONLY to the opponent battleboard
+	 this.broadcast.to(room.id).emit('receive:shot', cellId, otherPlayer)
+	 console.log(`STEP 3: Sending ${cellId} (cell id) to battleboard belong to`, otherPlayer)
  }
  
-
+// ******** HANDLE RESULT ********//
  const handleShotResult = function (data) {
 	console.log(`We´ve got a result:`, data)
 
-	// STEG 3. skicka vidare resultatet till opponent battleboard
 	io.emit('final:result', data)
  }
+
 /**
 * Export controller and attach handlers to events
 *
@@ -133,8 +127,9 @@ module.exports = function(socket, _io) {
 	// handle get room list request
 	socket.on('get-room-list', handleGetRoomList);
 
-	// STEG 2 handle player shot
+	// handle player shot event
 	socket.on('player:shot', handlePlayerShot)
 
+	// handle shot result
 	socket.on('shot:result', handleShotResult)
  }
