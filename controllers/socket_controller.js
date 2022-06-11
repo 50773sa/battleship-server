@@ -91,21 +91,28 @@ const handleGetRoomList = function(callback) {
 }
  
 // ******** HANDLE SHOT ********//
- const handlePlayerShot = function (cellId, otherPlayer) {
-	console.log(`STEP 2: Shot fired on cell: ${cellId} by ${otherPlayer}`)
+ const handlePlayerShot = function (cellId) {
+	console.log(`STEP 2: Shot fired on cell: ${cellId}`)
 
 	 const room = getRoomByPlayerId(this.id)
  
 	 // send data ONLY to the opponent battleboard
-	 this.broadcast.to(room.id).emit('receive:shot', cellId, otherPlayer)
-	 console.log(`STEP 3: Sending ${cellId} (cell id) to battleboard belong to`, otherPlayer)
+	 this.broadcast.to(room.id).emit('receive:shot', cellId)
+	 console.log(`STEP 3: Sending ${cellId} (cell id) to battleboard`)
  }
  
 // ******** HANDLE RESULT ********//
  const handleShotResult = function (data) {
-	console.log(`We´ve got a result:`, data)
+	console.log("We´ve got a result: hit in server is", data)
 
-	io.emit('final:result', data)
+	 // STEG 7. skicka vidare resultatet till opponent battleboard
+	 /**
+	  * @todo Ändra nedan till att skicka BARA till rummet som spelaren är med i
+	  */	 
+	 // hitta rummet som avfyrande spelare är med i
+	 const room = getRoomByPlayerId(this.id)
+	 
+	 this.broadcast.to(room.id).emit('final:result', data)
  }
 
 /**
