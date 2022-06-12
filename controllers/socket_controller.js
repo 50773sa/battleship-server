@@ -91,13 +91,13 @@ const handleGetRoomList = function(callback) {
 }
  
 // ******** HANDLE SHOT ********//
- const handlePlayerShot = function (cellId, hit) {
+ const handlePlayerShot = function (cellId) {
 	console.log(`STEP 2: Shot fired on cell: ${cellId}`)
 
 	 const room = getRoomByPlayerId(this.id)
  
 	 // send data ONLY to the opponent battleboard
-	 this.broadcast.to(room.id).emit('receive:shot', cellId, hit)
+	 this.broadcast.to(room.id).emit('receive:shot', cellId)
 	 console.log(`STEP 3: Sending ${cellId} (cell id) to battleboard`)
  }
  
@@ -112,7 +112,7 @@ const handleGetRoomList = function(callback) {
 	 // hitta rummet som avfyrande spelare är med i
 	 const room = getRoomByPlayerId(this.id)
 	 
-	 this.broadcast.to(room.id).emit('final:result', cellId, hit)
+	 this.broadcast.to(room.id).emit('shot:result-received', cellId, hit)
  }
 
 /**
