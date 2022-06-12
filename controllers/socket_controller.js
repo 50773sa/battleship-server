@@ -94,25 +94,28 @@ const handleGetRoomList = function(callback) {
  const handlePlayerShot = function (cellId) {
 	console.log(`STEP 2: Shot fired on cell: ${cellId}`)
 
-	 const room = getRoomByPlayerId(this.id)
+	const room = getRoomByPlayerId(this.id)
  
-	 // send data ONLY to the opponent battleboard
-	 this.broadcast.to(room.id).emit('receive:shot', cellId)
-	 console.log(`STEP 3: Sending ${cellId} (cell id) to battleboard`)
+	// send data ONLY to the opponent battleboard
+	this.broadcast.to(room.id).emit('receive:shot', cellId)
  }
  
 // ******** HANDLE RESULT ********//
  const handleShotResult = function (cellId, hit) {
 	console.log("We´ve got a result! (cellId, hit)", cellId, hit)
-
-	 // STEG 7. skicka vidare resultatet till opponent battleboard
-	 /**
-	  * @todo Ändra nedan till att skicka BARA till rummet som spelaren är med i
-	  */	 
-	 // hitta rummet som avfyrande spelare är med i
-	 const room = getRoomByPlayerId(this.id)
+	
+	const room = getRoomByPlayerId(this.id)
 	 
-	 this.broadcast.to(room.id).emit('shot:result-received', cellId, hit)
+	this.broadcast.to(room.id).emit('shot:result-received', cellId, hit)
+ }
+
+ // ******** HANDLE SHIP SUNK ********//
+ const handleShipSunk = function (ship_id) {
+	console.log("The ship is down! ", ship_id)
+	
+	const room = getRoomByPlayerId(this.id)
+
+	this.broadcast.to(room.id).emit("ship:sunk-reply", ship_id);
  }
 
 /**
@@ -139,4 +142,7 @@ module.exports = function(socket, _io) {
 
 	// handle shot result
 	socket.on('shot:result', handleShotResult)
+
+	// handle ship sunk
+	socket.on('ship:sunk', handleShipSunk)
  }
