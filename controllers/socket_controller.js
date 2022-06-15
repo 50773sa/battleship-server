@@ -78,7 +78,7 @@ const handleJoinGame = async function(username, room_id, callback) {
 	this.broadcast.to(room.id).emit('player:disconnected', room.players[this.id])
 
 	room.players = []
-	
+
 	console.log("Players object after disconnect:", room.players)
  }
 
@@ -122,6 +122,23 @@ const handleGetRoomList = function(callback) {
 	this.broadcast.to(room.id).emit("ship:sunk-reply", ship_id);
  }
 
+ const handleNewGame = function() {
+	debug(`New game`);
+ 
+	// find the room that the socket is a part of
+	const room = getRoomByPlayerId(this.id)
+
+	// if socket was not in a room, don't broadcast disconnect
+	if (!room) {
+		return;
+	}
+
+	this.broadcast.to(room.id).emit('ready-for-new-game', room.players[this.id])
+
+	room.players = []
+
+	console.log("Ready for a new game. Players object is empty! ")
+ }
 /**
 * Export controller and attach handlers to events
 *
@@ -149,4 +166,7 @@ module.exports = function(socket, _io) {
 
 	// handle ship sunk
 	socket.on('ship:sunk', handleShipSunk)
+
+	// handle new gane
+	socket.on('new:game', handleNewGame)
  }
