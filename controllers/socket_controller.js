@@ -76,6 +76,10 @@ const handleJoinGame = async function(username, room_id, callback) {
 	}
 
 	this.broadcast.to(room.id).emit('player:disconnected', room.players[this.id])
+
+	room.players = []
+	
+	console.log("Players object after disconnect:", room.players)
  }
 
 //****** HANDLE A PLAYER REQUESTING A LIST OF ROOMS ******//
