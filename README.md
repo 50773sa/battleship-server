@@ -38,3 +38,32 @@ The ships will be placed randomly to the game board at the beguinning of the gam
 - VS Code
 - Heroku
 - Netlify
+
+  
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://github.com/50773sa/battleship-server.git
+```
+
+Go to the project directory
+
+```bash
+  cd battleship-server
+```
+
+Install dependencies
+
+```bash
+  npm install
+```
+
+Start the server
+
+```bash
+  npm run dev
+```
+
+
